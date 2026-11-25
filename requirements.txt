@@ -1,0 +1,10 @@
+# Pinned Python dependencies
+pydantic
+pydantic-settings
+aiohttp
+beautifulsoup4
+dateparser
+rapidfuzz
+openai
+Python-jobspy
+streamlit

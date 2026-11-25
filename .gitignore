@@ -1,0 +1,25 @@
+# Excludes .env, venv/, __pycache__/, *.log
+# Secrets & personal data (NEVER commit)
+.env
+config/resume.txt
+.streamlit/secrets.toml
+
+# Local database & logs
+data/*.db
+data/*.db-journal
+logs/
+*.log
+
+# Python virtual environments & cache
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

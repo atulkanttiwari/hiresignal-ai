@@ -1,0 +1,14 @@
+.env
+.git
+.gitignore
+config/resume.txt
+data/*.db
+data/*.db-*
+logs/
+*.log
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.vscode/
+.idea/
