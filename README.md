@@ -48,6 +48,8 @@ This is intentionally a high-signal subset of the dashboard results rather than 
 
 ## Architecture
 
+📐 **System Design:** For a deep dive into the Medallion ELT pipeline, ADR trade-offs, fault-tolerance matrix, and v2.0 scaling roadmap, see [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
 ```text
 Candidate resume
        |
