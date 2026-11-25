@@ -17,7 +17,7 @@ class TelegramNotifier:
         settings = get_settings()
         self.bot_token = getattr(settings, "TELEGRAM_BOT_TOKEN", None)
         self.chat_id = getattr(settings, "TELEGRAM_CHAT_ID", None)
-        self.min_score = getattr(settings, "MIN_MATCH_SCORE", 75)
+        self.min_score = int(getattr(settings, "MIN_MATCH_SCORE", 75))
         self.enabled = bool(self.bot_token and self.chat_id)
 
         if not self.enabled:
@@ -47,33 +47,52 @@ class TelegramNotifier:
             f"🔗 <a href=\"{job.url}\">Apply Now</a>"
         )
 
+    def _send_html(self, text: str) -> bool:
+        """Sends a single HTML message via Telegram Bot API."""
+        api_url = f"https://api.telegram.org/bot{self.bot_token}/sendMessage"
+        payload = {
+            "chat_id": self.chat_id,
+            "text": text,
+            "parse_mode": "HTML",
+            "disable_web_page_preview": True,
+        }
+        try:
+            resp = requests.post(api_url, json=payload, timeout=10)
+            resp.raise_for_status()
+            return True
+        except Exception as e:
+            logger.warning(f"Failed to send Telegram message: {e}")
+            return False
+
     def send_alerts(self, jobs: List[ProcessedJob]) -> int:
-        """Sends Telegram alerts for all newly saved jobs meeting MIN_MATCH_SCORE."""
+        """Sends Telegram alerts for newly saved jobs meeting MIN_MATCH_SCORE, or a 0-job heartbeat."""
         if not self.enabled:
             return 0
 
-        high_matches = [j for j in jobs if j.match_score >= self.min_score and j.is_fresher_friendly]
+        high_matches = [
+            j for j in jobs if j.match_score >= self.min_score and j.is_fresher_friendly
+        ]
+
         if not high_matches:
-            logger.info(f"No new jobs met the Telegram alert threshold (>= {self.min_score}).")
+            logger.info(
+                f"No new jobs met the Telegram alert threshold (>= {self.min_score})."
+            )
+            heartbeat = (
+                f"🤖 <b>HireSignal AI — Daily Run Complete</b>\n\n"
+                f"Scored <b>{len(jobs)}</b> fresh job(s) today.\n"
+                f"No new fresher roles met your match threshold (>= {self.min_score})."
+            )
+            if self._send_html(heartbeat):
+                logger.info("Sent daily 0-job heartbeat to Telegram.")
             return 0
 
-        api_url = f"https://api.telegram.org/bot{self.bot_token}/sendMessage"
         sent_count = 0
-
         for job in high_matches:
-            payload = {
-                "chat_id": self.chat_id,
-                "text": self._format_message(job),
-                "parse_mode": "HTML",
-                "disable_web_page_preview": True,
-            }
-            try:
-                resp = requests.post(api_url, json=payload, timeout=10)
-                resp.raise_for_status()
+            if self._send_html(self._format_message(job)):
                 sent_count += 1
                 time.sleep(0.5)  # Gentle pacing for Telegram rate limits
-            except Exception as e:
-                logger.warning(f"Failed to send Telegram alert for '{job.title}': {e}")
 
-        logger.info(f"Sent {sent_count} Telegram job alerts (threshold >= {self.min_score}).")
+        logger.info(
+            f"Sent {sent_count} Telegram job alerts (threshold >= {self.min_score})."
+        )
         return sent_count

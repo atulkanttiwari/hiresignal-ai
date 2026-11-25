@@ -48,6 +48,7 @@ def run_pipeline(max_llm_jobs: int = 80) -> None:
     cleaned_jobs = clean_jobs(raw_jobs, existing_urls)
     if not cleaned_jobs:
         logger.info("No new relevant jobs found today. Pipeline finished.")
+        TelegramNotifier().send_alerts([])
         return
 
     # Cap LLM calls per run to protect free-tier quotas

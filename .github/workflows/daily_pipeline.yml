@@ -1,10 +1,10 @@
-# Free daily cron schedule (8 AM IST) via GitHub Actions
+# Free daily cron schedule (8:07 AM IST) via GitHub Actions
 name: Daily Job Intelligence Pipeline
 
 on:
   schedule:
-    # Runs daily at 10:00 AM IST (04:30 UTC)
-    - cron: '30 4 * * *'
+    # Runs daily at 8:07 AM IST (02:37 UTC — off-peak minute to avoid GitHub cron drops)
+    - cron: '37 2 * * *'
   workflow_dispatch: # Lets you trigger it manually from the Actions tab
 
 jobs:
@@ -46,5 +46,5 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          MIN_MATCH_SCORE: 75
+          MIN_MATCH_SCORE: ${{ secrets.MIN_MATCH_SCORE }}
         run: python pipeline.py
