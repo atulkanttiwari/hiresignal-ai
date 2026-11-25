@@ -4,6 +4,8 @@ An automated Python pipeline that discovers entry-level technology roles across 
 
 The project is designed to reduce manual job searching while keeping costs low. It uses public ATS APIs and job-board extraction for collection, deterministic filters before AI for cost control, and a three-provider LLM fallback chain for resume-to-job matching.
 
+**Live Streamlit App:** [https://hiresignal-ai.streamlit.app/](https://hiresignal-ai.streamlit.app/)
+
 ## Screenshots
 
 ### Streamlit dashboard - overview and job cards
