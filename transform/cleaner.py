@@ -76,6 +76,7 @@ EXCLUDE_TITLE_KEYWORDS = (
 
 class CleanJob(BaseModel):
     """Cleaned, fresh, deduplicated job ready for LLM evaluation."""
+
     url: str
     source: str
     title: str
@@ -110,7 +111,9 @@ def parse_posted_date(raw_date: Optional[str]) -> Optional[datetime]:
 def resolve_company(raw_name: str, threshold: int = 85) -> str:
     """Fuzzy-matches messy company names against our canonical seed list."""
     cleaned = raw_name.strip()
-    match = process.extractOne(cleaned, CANONICAL_COMPANIES, scorer=fuzz.token_sort_ratio)
+    match = process.extractOne(
+        cleaned, CANONICAL_COMPANIES, scorer=fuzz.token_sort_ratio
+    )
     if match and match[1] >= threshold:
         return match[0]
     return cleaned
@@ -142,21 +145,21 @@ def clean_jobs(
         # 1. Skip already-saved URLs or duplicates within this run
         if url_str in existing_urls or url_str in seen_in_batch:
             continue
-        
-        # drops Senior/Staff/Manager listings
+
+        # 2. Drop Senior/Staff/Manager listings
         if SENIOR_TITLE_PATTERN.search(job.title):
             continue
 
-        # 2. Skip irrelevant non-tech or senior leadership titles
+        # 3. Skip irrelevant non-tech or senior leadership titles
         if not is_relevant_title(job.title):
             continue
 
-        # 3. Parse date & enforce freshness window
+        # 4. Parse date & enforce freshness window
         posted_at = parse_posted_date(job.posted_at_raw)
         if not posted_at or posted_at < cutoff:
             continue
 
-        # 4. Strip HTML & resolve canonical company name
+        # 5. Strip HTML & resolve canonical company name
         clean_desc = strip_html(job.description)
         canonical_company = resolve_company(job.company_raw)
 
