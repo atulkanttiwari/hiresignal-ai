@@ -17,7 +17,7 @@ class TelegramNotifier:
         settings = get_settings()
         self.bot_token = getattr(settings, "TELEGRAM_BOT_TOKEN", None)
         self.chat_id = getattr(settings, "TELEGRAM_CHAT_ID", None)
-        self.min_score = int(getattr(settings, "MIN_MATCH_SCORE", 75))
+        self.min_score = int(getattr(settings, "MIN_MATCH_SCORE", 70))
         self.enabled = bool(self.bot_token and self.chat_id)
 
         if not self.enabled:
