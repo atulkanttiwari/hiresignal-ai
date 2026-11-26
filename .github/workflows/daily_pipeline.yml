@@ -1,13 +1,18 @@
-# Free twice-daily cron schedule (8:17 AM & 8:37 PM IST) via GitHub Actions
+# Triggered twice daily via cron-job.org (8:17 AM IST: jobspy | 8:37 PM IST: ats)
 name: Daily Job Intelligence Pipeline
 
 on:
-  schedule:
-    # Runs at 8:17 AM IST (02:47 UTC) — overnight & US/remote postings
-    - cron: '47 2 * * *'
-    # Runs at 8:37 PM IST (15:07 UTC) — fresh Indian daytime postings
-    - cron: '7 15 * * *'
-  workflow_dispatch: # Lets you trigger it manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Which job source to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - jobspy
+          - ats
 
 permissions:
   contents: read
@@ -52,4 +57,5 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           MIN_MATCH_SCORE: ${{ secrets.MIN_MATCH_SCORE }}
+          JOB_SOURCE: ${{ inputs.source || 'all' }}
         run: python pipeline.py

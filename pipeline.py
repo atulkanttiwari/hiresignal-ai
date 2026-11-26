@@ -1,4 +1,5 @@
 import asyncio
+import os
 from pathlib import Path
 from typing import List
 
@@ -30,7 +31,8 @@ def load_resume() -> str:
 
 def run_pipeline(max_llm_jobs: int = 80) -> None:
     """Runs the full End-to-End ETL Job Intelligence Pipeline."""
-    logger.info("=== Starting Job Intelligence Pipeline ===")
+    job_source = os.getenv("JOB_SOURCE", "all").strip().lower()
+    logger.info(f"=== Starting Job Intelligence Pipeline (source={job_source}) ===")
 
     # 1. Setup: Resume + DB deduplication set
     resume_text = load_resume()
@@ -38,9 +40,16 @@ def run_pipeline(max_llm_jobs: int = 80) -> None:
     existing_urls = db.get_existing_urls()
     logger.info(f"Loaded {len(existing_urls)} existing URLs from database")
 
-    # 2. Extract: Verified Direct ATS APIs + Job Boards (LinkedIn, Naukri)
-    ats_jobs = asyncio.run(ATSExtractor().fetch_all())
-    jobspy_jobs = JobSpyExtractor().fetch_all()
+    # 2. Extract: Verified Direct ATS APIs and/or Job Boards (LinkedIn, Naukri)
+    ats_jobs = []
+    jobspy_jobs = []
+
+    if job_source in ("all", "ats"):
+        ats_jobs = asyncio.run(ATSExtractor().fetch_all())
+
+    if job_source in ("all", "jobspy"):
+        jobspy_jobs = JobSpyExtractor().fetch_all()
+
     raw_jobs = ats_jobs + jobspy_jobs  # Prioritize verified direct ATS jobs first
     logger.info(f"Total raw jobs extracted: {len(raw_jobs)}")
 
