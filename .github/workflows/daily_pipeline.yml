@@ -1,11 +1,16 @@
-# Free daily cron schedule (8:07 AM IST) via GitHub Actions
+# Free twice-daily cron schedule (8:17 AM & 4:17 PM IST) via GitHub Actions
 name: Daily Job Intelligence Pipeline
 
 on:
   schedule:
-    # Runs daily at 8:07 AM IST (02:37 UTC — off-peak minute to avoid GitHub cron drops)
-    - cron: '37 2 * * *'
+    # Runs at 8:17 AM IST (02:47 UTC) — overnight & US/remote postings
+    - cron: '47 2 * * *'
+    # Runs at 4:17 PM IST (10:47 UTC) — fresh Indian daytime postings
+    - cron: '47 10 * * *'
   workflow_dispatch: # Lets you trigger it manually from the Actions tab
+
+permissions:
+  contents: read
 
 jobs:
   run-pipeline:
@@ -13,10 +18,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -25,7 +30,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Restore SQLite database cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: data/jobs.db
           key: jobs-db-${{ github.run_id }}
