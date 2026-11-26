@@ -1,12 +1,12 @@
-# Free twice-daily cron schedule (8:17 AM & 4:17 PM IST) via GitHub Actions
+# Free twice-daily cron schedule (8:17 AM & 8:37 PM IST) via GitHub Actions
 name: Daily Job Intelligence Pipeline
 
 on:
   schedule:
     # Runs at 8:17 AM IST (02:47 UTC) — overnight & US/remote postings
     - cron: '47 2 * * *'
-    # Runs at 4:17 PM IST (10:47 UTC) — fresh Indian daytime postings
-    - cron: '47 10 * * *'
+    # Runs at 8:37 PM IST (15:07 UTC) — fresh Indian daytime postings
+    - cron: '7 15 * * *'
   workflow_dispatch: # Lets you trigger it manually from the Actions tab
 
 permissions:
